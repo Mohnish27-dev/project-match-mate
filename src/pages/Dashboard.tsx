@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { LogOut, Plus, Briefcase, Users, Star, TrendingUp } from "lucide-react";
+import { LogOut, Plus, Briefcase, Users, Star, TrendingUp, Folder } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -138,10 +138,16 @@ const Dashboard = () => {
           <>
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-2xl font-bold">My Projects</h3>
-              <Button onClick={() => navigate('/post-project')} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Post New Project
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => navigate('/workspaces')} className="gap-2">
+                  <Folder className="h-4 w-4" />
+                  Workspaces
+                </Button>
+                <Button onClick={() => navigate('/post-project')} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Post New Project
+                </Button>
+              </div>
             </div>
 
             <div className="grid gap-6">

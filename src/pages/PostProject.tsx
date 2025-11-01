@@ -6,12 +6,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Sparkles } from "lucide-react";
 
 const PostProject = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [workspaces, setWorkspaces] = useState<any[]>([]);
+  const [selectedWorkspace, setSelectedWorkspace] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [skills, setSkills] = useState("");
@@ -21,7 +24,22 @@ const PostProject = () => {
 
   useEffect(() => {
     checkAuth();
+    fetchWorkspaces();
   }, []);
+
+  const fetchWorkspaces = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("workspaces")
+        .select("*")
+        .order("created_at", { ascending: false });
+      
+      if (error) throw error;
+      setWorkspaces(data || []);
+    } catch (error: any) {
+      console.error("Error fetching workspaces:", error);
+    }
+  };
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -54,6 +72,7 @@ const PostProject = () => {
         .from('projects')
         .insert({
           owner_id: user.id,
+          workspace_id: selectedWorkspace || null,
           title,
           description,
           required_skills: skills.split(',').map(s => s.trim()),
@@ -118,6 +137,25 @@ const PostProject = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              {workspaces.length > 0 && (
+                <div className="space-y-2">
+                  <Label htmlFor="workspace">Workspace (Optional)</Label>
+                  <Select value={selectedWorkspace} onValueChange={setSelectedWorkspace}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a workspace" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No Workspace</SelectItem>
+                      {workspaces.map((workspace) => (
+                        <SelectItem key={workspace.id} value={workspace.id}>
+                          {workspace.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
               <div className="space-y-2">
                 <Label htmlFor="title">Project Title *</Label>
                 <Input
