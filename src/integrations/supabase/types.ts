@@ -14,7 +14,226 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          cover_letter: string | null
+          created_at: string
+          freelancer_id: string
+          id: string
+          project_id: string
+          proposed_rate: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cover_letter?: string | null
+          created_at?: string
+          freelancer_id: string
+          id?: string
+          project_id: string
+          proposed_rate?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cover_letter?: string | null
+          created_at?: string
+          freelancer_id?: string
+          id?: string
+          project_id?: string
+          proposed_rate?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_freelancer_id_fkey"
+            columns: ["freelancer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      freelancer_profiles: {
+        Row: {
+          availability: string | null
+          created_at: string
+          hourly_rate: number | null
+          id: string
+          portfolio_url: string | null
+          skills: string[]
+          updated_at: string
+          user_id: string
+          years_experience: number | null
+        }
+        Insert: {
+          availability?: string | null
+          created_at?: string
+          hourly_rate?: number | null
+          id?: string
+          portfolio_url?: string | null
+          skills?: string[]
+          updated_at?: string
+          user_id: string
+          years_experience?: number | null
+        }
+        Update: {
+          availability?: string | null
+          created_at?: string
+          hourly_rate?: number | null
+          id?: string
+          portfolio_url?: string | null
+          skills?: string[]
+          updated_at?: string
+          user_id?: string
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "freelancer_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matches: {
+        Row: {
+          created_at: string
+          freelancer_id: string
+          id: string
+          match_reason: string | null
+          match_score: number
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          freelancer_id: string
+          id?: string
+          match_reason?: string | null
+          match_score: number
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          freelancer_id?: string
+          id?: string
+          match_reason?: string | null
+          match_score?: number
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_freelancer_id_fkey"
+            columns: ["freelancer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          location: string | null
+          updated_at: string
+          user_role: Database["public"]["Enums"]["user_role"]
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          location?: string | null
+          updated_at?: string
+          user_role: Database["public"]["Enums"]["user_role"]
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          location?: string | null
+          updated_at?: string
+          user_role?: Database["public"]["Enums"]["user_role"]
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          budget_max: number | null
+          budget_min: number | null
+          created_at: string
+          description: string
+          id: string
+          owner_id: string
+          required_skills: string[]
+          status: Database["public"]["Enums"]["project_status"]
+          timeline: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          budget_max?: number | null
+          budget_min?: number | null
+          created_at?: string
+          description: string
+          id?: string
+          owner_id: string
+          required_skills?: string[]
+          status?: Database["public"]["Enums"]["project_status"]
+          timeline?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          budget_max?: number | null
+          budget_min?: number | null
+          created_at?: string
+          description?: string
+          id?: string
+          owner_id?: string
+          required_skills?: string[]
+          status?: Database["public"]["Enums"]["project_status"]
+          timeline?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +242,9 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      project_status: "open" | "in_progress" | "completed" | "cancelled"
+      skill_level: "beginner" | "intermediate" | "expert"
+      user_role: "freelancer" | "project_owner"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +371,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      project_status: ["open", "in_progress", "completed", "cancelled"],
+      skill_level: ["beginner", "intermediate", "expert"],
+      user_role: ["freelancer", "project_owner"],
+    },
   },
 } as const
