@@ -216,7 +216,7 @@ export type Database = {
           timeline: string | null
           title: string
           updated_at: string
-          workspace_id: string | null
+          workspace_id: string
         }
         Insert: {
           budget_max?: number | null
@@ -231,7 +231,7 @@ export type Database = {
           timeline?: string | null
           title: string
           updated_at?: string
-          workspace_id?: string | null
+          workspace_id: string
         }
         Update: {
           budget_max?: number | null
@@ -246,7 +246,7 @@ export type Database = {
           timeline?: string | null
           title?: string
           updated_at?: string
-          workspace_id?: string | null
+          workspace_id?: string
         }
         Relationships: [
           {

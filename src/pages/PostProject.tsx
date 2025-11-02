@@ -30,15 +30,61 @@ const PostProject = () => {
 
   const fetchWorkspaces = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       const { data, error } = await supabase
         .from("workspaces")
         .select("*")
+        .eq("owner_id", user.id)
         .order("created_at", { ascending: false });
       
       if (error) throw error;
-      setWorkspaces(data || []);
+      
+      if (data && data.length > 0) {
+        setWorkspaces(data);
+        setSelectedWorkspace(data[0].id); // Auto-select first workspace
+      } else {
+        // Create a default workspace if none exists
+        await createDefaultWorkspace(user.id);
+      }
     } catch (error: any) {
       console.error("Error fetching workspaces:", error);
+    }
+  };
+
+  const createDefaultWorkspace = async (userId: string) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, email')
+        .eq('id', userId)
+        .single();
+
+      const workspaceName = profile?.full_name 
+        ? `${profile.full_name}'s Workspace` 
+        : `My Workspace`;
+
+      const { data, error } = await supabase
+        .from('workspaces')
+        .insert({
+          owner_id: userId,
+          name: workspaceName,
+          description: 'Default workspace for projects'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setWorkspaces([data]);
+        setSelectedWorkspace(data.id);
+        toast.success("Created your first workspace!");
+      }
+    } catch (error: any) {
+      console.error("Error creating workspace:", error);
+      toast.error("Failed to create workspace");
     }
   };
 
@@ -63,6 +109,12 @@ const PostProject = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!selectedWorkspace) {
+      toast.error("Please select a workspace");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -73,7 +125,7 @@ const PostProject = () => {
         .from('projects')
         .insert({
           owner_id: user.id,
-          workspace_id: selectedWorkspace || null,
+          workspace_id: selectedWorkspace,
           title,
           description,
           required_skills: skills.split(',').map(s => s.trim()),
@@ -156,24 +208,24 @@ const PostProject = () => {
                 </Select>
               </div>
 
-              {workspaces.length > 0 && (
-                <div className="space-y-2">
-                  <Label htmlFor="workspace">Workspace (Optional)</Label>
-                  <Select value={selectedWorkspace} onValueChange={setSelectedWorkspace}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a workspace" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="none">No Workspace</SelectItem>
-                      {workspaces.map((workspace) => (
-                        <SelectItem key={workspace.id} value={workspace.id}>
-                          {workspace.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="workspace">Workspace *</Label>
+                <Select value={selectedWorkspace} onValueChange={setSelectedWorkspace} required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a workspace" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workspaces.map((workspace) => (
+                      <SelectItem key={workspace.id} value={workspace.id}>
+                        {workspace.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Every project must belong to a workspace. Create more workspaces from the Workspaces page.
+                </p>
+              </div>
               
               <div className="space-y-2">
                 <Label htmlFor="title">Project Title *</Label>
