@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,21 +17,6 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [userRole, setUserRole] = useState<string>('freelancer');
-
-  useEffect(() => {
-    // Check if already logged in - use setTimeout to prevent deadlock
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/dashboard');
-      }
-    };
-    
-    // Defer the session check to prevent blocking UI
-    const timeoutId = setTimeout(checkSession, 0);
-    
-    return () => clearTimeout(timeoutId);
-  }, [navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
