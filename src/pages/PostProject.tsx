@@ -82,7 +82,7 @@ const PostProject = () => {
           timeline,
           status: 'open',
           project_type: projectType,
-        })
+        } as any)
         .select()
         .single();
 
