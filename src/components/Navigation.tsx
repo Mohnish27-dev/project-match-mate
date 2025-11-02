@@ -1,9 +1,29 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Navigation = () => {
   const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
 
   return (
     <nav className="sticky top-0 z-50 border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -14,22 +34,38 @@ const Navigation = () => {
               <Sparkles className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              MatchAI
+              OpenInnovate
             </span>
           </div>
           
           <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Features
-            </a>
-            <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              How It Works
-            </a>
+            {isAuthenticated ? (
+              <>
+                <Button variant="ghost" onClick={() => navigate('/dashboard')}>Dashboard</Button>
+                <Button variant="ghost" onClick={() => navigate('/workspaces')}>Workspaces</Button>
+                <Button variant="ghost" onClick={() => navigate('/projects')}>Projects</Button>
+              </>
+            ) : (
+              <>
+                <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  Features
+                </a>
+                <a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  How It Works
+                </a>
+              </>
+            )}
           </div>
           
           <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate('/auth')}>Sign In</Button>
-            <Button variant="default" onClick={() => navigate('/auth')}>Get Started</Button>
+            {isAuthenticated ? (
+              <Button onClick={handleLogout}>Logout</Button>
+            ) : (
+              <>
+                <Button variant="ghost" onClick={() => navigate('/auth')}>Sign In</Button>
+                <Button variant="default" onClick={() => navigate('/auth')}>Get Started</Button>
+              </>
+            )}
           </div>
         </div>
       </div>

@@ -18,7 +18,7 @@ const Index = () => {
       </main>
       <footer className="border-t border-border py-8 px-4">
         <div className="container mx-auto text-center text-sm text-muted-foreground">
-          <p>© 2025 MatchAI. All rights reserved.</p>
+          <p>© 2025 OpenInnovate. All rights reserved.</p>
         </div>
       </footer>
     </div>

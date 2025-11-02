@@ -98,7 +98,7 @@ const Auth = () => {
           <div className="mx-auto w-12 h-12 rounded-lg bg-gradient-primary flex items-center justify-center">
             <Sparkles className="h-6 w-6 text-primary-foreground" />
           </div>
-          <CardTitle className="text-2xl">Welcome to MatchAI</CardTitle>
+          <CardTitle className="text-2xl">Welcome to OpenInnovate</CardTitle>
           <CardDescription>
             Sign in or create an account to get started
           </CardDescription>
