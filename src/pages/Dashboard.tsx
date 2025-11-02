@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { LogOut, Plus, Briefcase, Users, Star, TrendingUp, Folder } from "lucide-react";
+import { LogOut, Plus, Briefcase, Users, Star, TrendingUp, Folder, Loader2 } from "lucide-react";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -16,6 +16,7 @@ const Dashboard = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [matches, setMatches] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
+  const [loadingMatches, setLoadingMatches] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -64,6 +65,9 @@ const Dashboard = () => {
   };
 
   const loadFreelancerData = async (userId: string) => {
+    setLoadingMatches(true);
+    
+    // First check for existing matches
     const { data: matchesData } = await supabase
       .from('matches')
       .select('*, projects(*)')
@@ -77,8 +81,37 @@ const Dashboard = () => {
       .eq('freelancer_id', userId)
       .order('created_at', { ascending: false });
 
-    setMatches(matchesData || []);
+    // If no matches exist, generate them with AI
+    if (!matchesData || matchesData.length === 0) {
+      try {
+        const { data: generateData, error: generateError } = await supabase.functions.invoke('generate-user-matches', {
+          body: { userId }
+        });
+
+        if (!generateError && generateData?.matchCount > 0) {
+          // Reload matches after generation
+          const { data: newMatches } = await supabase
+            .from('matches')
+            .select('*, projects(*)')
+            .eq('freelancer_id', userId)
+            .order('match_score', { ascending: false })
+            .limit(10);
+
+          setMatches(newMatches || []);
+          toast.success(`Generated ${generateData.matchCount} AI-powered matches!`);
+        } else {
+          setMatches([]);
+        }
+      } catch (error) {
+        console.error('Error generating matches:', error);
+        setMatches([]);
+      }
+    } else {
+      setMatches(matchesData);
+    }
+
     setApplications(applicationsData || []);
+    setLoadingMatches(false);
   };
 
   const handleSignOut = async () => {
@@ -216,13 +249,22 @@ const Dashboard = () => {
             </TabsList>
 
             <TabsContent value="matches" className="space-y-4">
-              {matches.length === 0 ? (
+              {loadingMatches ? (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+                    <p className="text-muted-foreground">
+                      Generating AI-powered matches using semantic analysis and embeddings...
+                    </p>
+                  </CardContent>
+                </Card>
+              ) : matches.length === 0 ? (
                 <Card>
                   <CardContent className="py-12 text-center">
                     <TrendingUp className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                     <p className="text-lg font-semibold mb-2">No AI matches yet</p>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Generate test data to see AI-powered project matching in action
+                      Generate test data to see AI-powered project matching with embeddings in action
                     </p>
                     <div className="flex gap-3 justify-center">
                       <Button 
