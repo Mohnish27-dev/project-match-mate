@@ -19,12 +19,18 @@ const Auth = () => {
   const [userRole, setUserRole] = useState<string>('freelancer');
 
   useEffect(() => {
-    // Check if already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Check if already logged in - use setTimeout to prevent deadlock
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         navigate('/dashboard');
       }
-    });
+    };
+    
+    // Defer the session check to prevent blocking UI
+    const timeoutId = setTimeout(checkSession, 0);
+    
+    return () => clearTimeout(timeoutId);
   }, [navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
