@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Plus, UserPlus, Shield, UserMinus, ChevronUp, ChevronDown, Sparkles, Send, Bot } from "lucide-react";
+import { ArrowLeft, Plus, UserPlus, UserMinus, ChevronUp, ChevronDown, Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
+import WorkspaceChatbot from "@/components/WorkspaceChatbot";
 
 export default function WorkspaceDetail() {
   const { id } = useParams();
@@ -26,9 +26,6 @@ export default function WorkspaceDetail() {
   const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
-  const [chatQuestion, setChatQuestion] = useState("");
-  const [chatAnswer, setChatAnswer] = useState("");
-  const [chatLoading, setChatLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -191,27 +188,6 @@ export default function WorkspaceDetail() {
     }
   };
 
-  const askWorkspaceChat = async () => {
-    if (!chatQuestion.trim()) return;
-    
-    setChatLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("workspace-chat", {
-        body: { workspaceId: id, question: chatQuestion },
-      });
-
-      if (error) throw error;
-      setChatAnswer(data.answer || "No response");
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setChatLoading(false);
-    }
-  };
 
   const canManageMembers = currentUserRole === "owner" || currentUserRole === "admin";
 
@@ -231,21 +207,17 @@ export default function WorkspaceDetail() {
       </Button>
 
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">{workspace?.name}</h1>
+        <h1 className="text-4xl font-bold mb-2 bg-gradient-primary bg-clip-text text-transparent">{workspace?.name}</h1>
         <p className="text-muted-foreground">{workspace?.description}</p>
       </div>
 
       <Tabs defaultValue="members" className="space-y-6">
-        <TabsList>
+        <TabsList className="bg-card">
           <TabsTrigger value="members">Members</TabsTrigger>
           <TabsTrigger value="projects">Projects</TabsTrigger>
           <TabsTrigger value="recommendations">
             <Sparkles className="mr-2 h-4 w-4" />
             AI Recommendations
-          </TabsTrigger>
-          <TabsTrigger value="chat">
-            <Bot className="mr-2 h-4 w-4" />
-            Workspace Chat
           </TabsTrigger>
         </TabsList>
 
@@ -462,58 +434,10 @@ export default function WorkspaceDetail() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="chat">
-          <Card>
-            <CardHeader>
-              <CardTitle>Workspace AI Assistant</CardTitle>
-              <CardDescription>
-                Ask questions about workspace members, projects, and activities
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="question">Ask a question</Label>
-                <div className="flex gap-2">
-                  <Textarea
-                    id="question"
-                    value={chatQuestion}
-                    onChange={(e) => setChatQuestion(e.target.value)}
-                    placeholder="e.g., What projects is John working on? What's the timeline for the dashboard project?"
-                    rows={3}
-                  />
-                  <Button
-                    onClick={askWorkspaceChat}
-                    disabled={chatLoading || !chatQuestion.trim()}
-                    className="h-full"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {chatAnswer && (
-                <div className="p-4 border rounded-lg bg-accent/50">
-                  <div className="flex items-start gap-2 mb-2">
-                    <Bot className="h-5 w-5 text-primary mt-1" />
-                    <h4 className="font-semibold">AI Assistant</h4>
-                  </div>
-                  <p className="text-sm whitespace-pre-wrap">{chatAnswer}</p>
-                </div>
-              )}
-
-              <div className="pt-4 border-t">
-                <h5 className="font-medium mb-2">Example questions:</h5>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                  <p>• What work has [member name] done?</p>
-                  <p>• What should be the timeline for [project name]?</p>
-                  <p>• Who has the most relevant skills for [task]?</p>
-                  <p>• Summarize recent workspace activity</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
+      
+      {/* Floating AI Chatbot */}
+      {id && <WorkspaceChatbot workspaceId={id} />}
     </div>
   );
 }
