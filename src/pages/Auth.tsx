@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -15,7 +16,7 @@ const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [userRole, setUserRole] = useState<'freelancer' | 'project_owner'>('freelancer');
+  const [userRole, setUserRole] = useState<string>('freelancer');
 
   useEffect(() => {
     // Check if already logged in
@@ -177,25 +178,21 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>I am a...</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      type="button"
-                      variant={userRole === 'freelancer' ? 'default' : 'outline'}
-                      onClick={() => setUserRole('freelancer')}
-                      className="w-full"
-                    >
-                      Freelancer
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={userRole === 'project_owner' ? 'secondary' : 'outline'}
-                      onClick={() => setUserRole('project_owner')}
-                      className="w-full"
-                    >
-                      Project Owner
-                    </Button>
-                  </div>
+                  <Label htmlFor="userRole">I am a... *</Label>
+                  <Select value={userRole} onValueChange={setUserRole} required>
+                    <SelectTrigger id="userRole">
+                      <SelectValue placeholder="Select your role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="freelancer">Freelancer</SelectItem>
+                      <SelectItem value="project_owner">Project Owner / Client</SelectItem>
+                      <SelectItem value="open_source_maintainer">Open Source Maintainer</SelectItem>
+                      <SelectItem value="open_source_contributor">Open Source Contributor</SelectItem>
+                      <SelectItem value="startup_founder">Startup Founder</SelectItem>
+                      <SelectItem value="job_seeker">Job Seeker</SelectItem>
+                      <SelectItem value="hackathon_participant">Hackathon Participant</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

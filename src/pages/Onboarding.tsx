@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, User } from "lucide-react";
@@ -17,11 +18,13 @@ const Onboarding = () => {
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
   
-  // Freelancer specific
+  // Freelancer/contributor specific
   const [skills, setSkills] = useState("");
   const [hourlyRate, setHourlyRate] = useState("");
   const [portfolioUrl, setPortfolioUrl] = useState("");
   const [yearsExperience, setYearsExperience] = useState("");
+  const [githubUrl, setGithubUrl] = useState("");
+  const [linkedinUrl, setLinkedinUrl] = useState("");
 
   useEffect(() => {
     checkProfile();
@@ -47,7 +50,7 @@ const Onboarding = () => {
       setLocation(profile.location || '');
       
       // Check if already completed onboarding
-      if (profile.full_name && profile.user_role === 'freelancer') {
+      if (profile.full_name && profile.user_role !== 'project_owner') {
         const { data: freelancerProfile } = await supabase
           .from('freelancer_profiles')
           .select('*')
@@ -85,8 +88,8 @@ const Onboarding = () => {
 
       if (profileError) throw profileError;
 
-      // If freelancer, create freelancer profile
-      if (userRole === 'freelancer') {
+      // If not project owner, create freelancer/contributor profile
+      if (userRole !== 'project_owner') {
         const { error: freelancerError } = await supabase
           .from('freelancer_profiles')
           .insert({
@@ -95,6 +98,8 @@ const Onboarding = () => {
             hourly_rate: hourlyRate ? parseFloat(hourlyRate) : null,
             portfolio_url: portfolioUrl || null,
             years_experience: yearsExperience ? parseInt(yearsExperience) : null,
+            github_url: githubUrl || null,
+            linkedin_url: linkedinUrl || null,
           });
 
         if (freelancerError) throw freelancerError;
@@ -118,7 +123,7 @@ const Onboarding = () => {
           </div>
           <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
           <CardDescription>
-            Tell us about yourself to get better matches
+            Tell us about yourself to get better AI-powered matches
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -154,7 +159,7 @@ const Onboarding = () => {
               />
             </div>
 
-            {userRole === 'freelancer' && (
+            {userRole !== 'project_owner' && (
               <>
                 <div className="space-y-2">
                   <Label htmlFor="skills">Skills (comma separated) *</Label>
@@ -162,7 +167,7 @@ const Onboarding = () => {
                     id="skills"
                     value={skills}
                     onChange={(e) => setSkills(e.target.value)}
-                    placeholder="e.g., React, Node.js, Python"
+                    placeholder="e.g., React, Node.js, Python, Machine Learning"
                     required
                   />
                 </div>
@@ -201,6 +206,35 @@ const Onboarding = () => {
                     placeholder="https://yourportfolio.com"
                   />
                 </div>
+
+                {(userRole === 'open_source_maintainer' || 
+                  userRole === 'open_source_contributor' || 
+                  userRole === 'hackathon_participant' ||
+                  userRole === 'job_seeker') && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="github">GitHub Profile URL</Label>
+                      <Input
+                        id="github"
+                        type="url"
+                        value={githubUrl}
+                        onChange={(e) => setGithubUrl(e.target.value)}
+                        placeholder="https://github.com/yourusername"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="linkedin">LinkedIn Profile URL</Label>
+                      <Input
+                        id="linkedin"
+                        type="url"
+                        value={linkedinUrl}
+                        onChange={(e) => setLinkedinUrl(e.target.value)}
+                        placeholder="https://linkedin.com/in/yourprofile"
+                      />
+                    </div>
+                  </>
+                )}
               </>
             )}
 

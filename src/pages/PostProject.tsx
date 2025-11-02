@@ -21,6 +21,7 @@ const PostProject = () => {
   const [budgetMin, setBudgetMin] = useState("");
   const [budgetMax, setBudgetMax] = useState("");
   const [timeline, setTimeline] = useState("");
+  const [projectType, setProjectType] = useState("freelance_gig");
 
   useEffect(() => {
     checkAuth();
@@ -80,6 +81,7 @@ const PostProject = () => {
           budget_max: budgetMax ? parseFloat(budgetMax) : null,
           timeline,
           status: 'open',
+          project_type: projectType,
         })
         .select()
         .single();
@@ -137,6 +139,23 @@ const PostProject = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="projectType">Project Type *</Label>
+                <Select defaultValue="freelance_gig" required>
+                  <SelectTrigger id="projectType">
+                    <SelectValue placeholder="Select project type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="freelance_gig">Freelance Gig</SelectItem>
+                    <SelectItem value="open_source_project">Open Source Project</SelectItem>
+                    <SelectItem value="startup_opportunity">Startup Opportunity</SelectItem>
+                    <SelectItem value="full_time_job">Full-Time Job</SelectItem>
+                    <SelectItem value="hackathon_team">Hackathon Team</SelectItem>
+                    <SelectItem value="contract_work">Contract Work</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {workspaces.length > 0 && (
                 <div className="space-y-2">
                   <Label htmlFor="workspace">Workspace (Optional)</Label>

@@ -66,8 +66,12 @@ export type Database = {
         Row: {
           availability: string | null
           created_at: string
+          github_url: string | null
+          hackathon_wins: number | null
           hourly_rate: number | null
           id: string
+          linkedin_url: string | null
+          open_source_contributions: string[] | null
           portfolio_url: string | null
           skills: string[]
           updated_at: string
@@ -77,8 +81,12 @@ export type Database = {
         Insert: {
           availability?: string | null
           created_at?: string
+          github_url?: string | null
+          hackathon_wins?: number | null
           hourly_rate?: number | null
           id?: string
+          linkedin_url?: string | null
+          open_source_contributions?: string[] | null
           portfolio_url?: string | null
           skills?: string[]
           updated_at?: string
@@ -88,8 +96,12 @@ export type Database = {
         Update: {
           availability?: string | null
           created_at?: string
+          github_url?: string | null
+          hackathon_wins?: number | null
           hourly_rate?: number | null
           id?: string
+          linkedin_url?: string | null
+          open_source_contributions?: string[] | null
           portfolio_url?: string | null
           skills?: string[]
           updated_at?: string
@@ -156,7 +168,9 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          interests: string[] | null
           location: string | null
+          looking_for: string[] | null
           updated_at: string
           user_role: Database["public"]["Enums"]["user_role"]
         }
@@ -167,7 +181,9 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          interests?: string[] | null
           location?: string | null
+          looking_for?: string[] | null
           updated_at?: string
           user_role: Database["public"]["Enums"]["user_role"]
         }
@@ -178,7 +194,9 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          interests?: string[] | null
           location?: string | null
+          looking_for?: string[] | null
           updated_at?: string
           user_role?: Database["public"]["Enums"]["user_role"]
         }
@@ -192,6 +210,7 @@ export type Database = {
           description: string
           id: string
           owner_id: string
+          project_type: Database["public"]["Enums"]["project_type"] | null
           required_skills: string[]
           status: Database["public"]["Enums"]["project_status"]
           timeline: string | null
@@ -206,6 +225,7 @@ export type Database = {
           description: string
           id?: string
           owner_id: string
+          project_type?: Database["public"]["Enums"]["project_type"] | null
           required_skills?: string[]
           status?: Database["public"]["Enums"]["project_status"]
           timeline?: string | null
@@ -220,6 +240,7 @@ export type Database = {
           description?: string
           id?: string
           owner_id?: string
+          project_type?: Database["public"]["Enums"]["project_type"] | null
           required_skills?: string[]
           status?: Database["public"]["Enums"]["project_status"]
           timeline?: string | null
@@ -367,8 +388,22 @@ export type Database = {
     }
     Enums: {
       project_status: "open" | "in_progress" | "completed" | "cancelled"
+      project_type:
+        | "freelance_gig"
+        | "open_source_project"
+        | "startup_opportunity"
+        | "full_time_job"
+        | "hackathon_team"
+        | "contract_work"
       skill_level: "beginner" | "intermediate" | "expert"
-      user_role: "freelancer" | "project_owner"
+      user_role:
+        | "freelancer"
+        | "project_owner"
+        | "open_source_maintainer"
+        | "open_source_contributor"
+        | "startup_founder"
+        | "job_seeker"
+        | "hackathon_participant"
       workspace_role: "owner" | "admin" | "member"
     }
     CompositeTypes: {
@@ -498,8 +533,24 @@ export const Constants = {
   public: {
     Enums: {
       project_status: ["open", "in_progress", "completed", "cancelled"],
+      project_type: [
+        "freelance_gig",
+        "open_source_project",
+        "startup_opportunity",
+        "full_time_job",
+        "hackathon_team",
+        "contract_work",
+      ],
       skill_level: ["beginner", "intermediate", "expert"],
-      user_role: ["freelancer", "project_owner"],
+      user_role: [
+        "freelancer",
+        "project_owner",
+        "open_source_maintainer",
+        "open_source_contributor",
+        "startup_founder",
+        "job_seeker",
+        "hackathon_participant",
+      ],
       workspace_role: ["owner", "admin", "member"],
     },
   },
