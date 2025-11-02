@@ -220,10 +220,25 @@ const Dashboard = () => {
                 <Card>
                   <CardContent className="py-12 text-center">
                     <TrendingUp className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                    <p className="text-muted-foreground">No matches yet</p>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Our AI will find projects that match your skills
+                    <p className="text-lg font-semibold mb-2">No AI matches yet</p>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Generate test data to see AI-powered project matching in action
                     </p>
+                    <div className="flex gap-3 justify-center">
+                      <Button 
+                        onClick={() => navigate('/admin')}
+                        className="gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Generate Test Data
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => navigate('/projects')}
+                      >
+                        Browse Projects
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ) : (
